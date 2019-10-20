@@ -1,0 +1,32 @@
+UPE-CS32-Review
+
+
+list<string> li;
+li.push_back("hybrid");
+li.push_back("appear");
+li.push_back("freeze");
+li.push_back("friend");
+li.push_back("appear");
+
+for(list<string>::iterator it = li.begin(); it != li.end(); )
+{
+	if((*it) == "appear")
+		it = li.erase(it)
+	else
+		it++;
+		
+}
+
+
+int maxDepth(Node* root)
+{
+	if (node == nullptr)
+		return 0;
+
+	int leftsum = 1 + maxDepth(root->left);
+	int rightsum=  1 + maxDepth(root->right);
+	if (leftsum>rightsum)
+		return leftsum;
+	else
+		return rightsum;
+}

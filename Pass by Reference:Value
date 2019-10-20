@@ -1,0 +1,32 @@
+Pass by Reference/Value
+
+ex:
+
+double radius();
+
+double radius()
+{
+	return m_r;
+}
+
+double area(Circle x)
+{
+	//creates a copy of a circle (pass by value)
+	return PI * x.radius() * x.radius();
+}
+
+double radius() const; // needs const to indicate that radius() will not modify the 
+						//circle or whatever object this pointer is pointing to
+double radius() const
+{
+	return m_r;
+}
+
+double area(const Circle& x)
+{
+	// '&' means area takes in the original circle (pass by reference)
+	// 'const' means that the original circle cannot change. 
+	// pass by reference uses less memory since it does not have to create a copy. 
+
+	return PI * x.radius() * x.radius();
+}

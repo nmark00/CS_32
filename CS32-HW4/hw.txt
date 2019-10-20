@@ -1,0 +1,34 @@
+2)
+When you call Sequence<Coord>::insert, it causes the error "Invalid operands to binary expression".
+This is because the Coord did not overload the ">" operator, so Sequence<Coord>::insert does not know how to compare Coords, whereas the '>' operator is built into int types.
+
+4b)
+Because there are two vectors-- one for the number of vectors, and another for items in each vector-- at a minimum, we need at least 2 parameters.
+To do this problem recursively, we need to able to pass on information for which vector we are operating on, and which element of the vector we are on.
+Each vector is dynamically allocated, which means there are 2 unknowns, requiring at least two parameters to keep track.
+
+5a)
+The program has 3 nested for loops, each of size N. 
+The program runs through the 1st loop 1 time, which then runs the 2nd loop N times, which runs the last loop N times as well.
+So the if statement inside the 3rd for loop is checked N*N*N times.
+Big-O is O(N^3)
+
+5b)
+Big-O is still O(N^3).
+The program will run through the program N times in the first loop.
+Then inside the first loop, it will run through the second loop i times.
+i gradualy gets larger until it reaches N; so at this point the Big-O is N*N/2.
+The third for loop will run N times, so now the Big-O is N*(N/2)*N, or (N^3)/2.
+However, since we ignore coefficients, the Big-O is N^3.
+
+6a)
+In the worst case scenario, it nmin has N elements, so it runs through the first for loop N times.
+Inside the loop, it calls the sequence get function twice, which then calls nodeAtPos.
+The function nodeAtPos contains a for loop that can run at most N/2 times. 
+Interleave contains a second for loop, (not nested), which calls the get function again. 
+Since we ignore coefficients in Big-O calculations, we get O(N^2).
+
+6b)
+This contains two for loops (non nested), of maximum size N.
+In each loop, it calls insertBefore which does not performs a series of operations, non involving any loops or recursion.
+So, ignoring any coefficients, the Big-O is O(N), which is better than part a.

@@ -1,0 +1,710 @@
+Project 3 Report:
+
+––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+                            Part 1: Design Description
+––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+    
+=================================== Board Class ==================================
+
+This class keeps track of all the beans in the game board. 
+It contains the number of holes, the location of each hole and how many beans are in each hole.
+This class also contains various functions for moving beans around the board.
+
+=============== Private Variables ===============
+I created two private vectors -- north_holes and south_holes -- to represent the series of holes and pot of the board. 
+These vectors could dynamically allocate holes when the game main passes in those parameters
+m_nHoles represents the total number of holes per side.
+m_nInitialBeansPerHole represents the number of beans per hole when the game starts.
+
+=============== Public Functions ===============
+
+Board(int nHoles, int nInitialBeansPerHole)
+This is the constructor, used to initialize my private variables. 
+It sets m_nHoles to nHoles, and m_nInitialBeansPerHole to nInitialBeansPerHole.
+
+Board(const Board& other)
+This is the copy constructor, later used in the Game class. It takes in a Board, and sets it equal to another board.
+
+Board& operator=(const Board& other)
+This is the assignment operator. It is used to set Boards equal to one another once initialized. 
+
+int holes() const
+Returns the number of holes, m_nHoles, which was initialized in the constructor.
+It is const because the function should not modify whatever calls it.
+This function is public to allow other classes know how many holes there are.
+
+int beans(Side s, int hole) const
+Returns the number of beans located in hole on side s.
+It is const because the function should not modify whatever calls it, since it only wants to know the number of beans.
+This function is public to allow other classes and functions know how many beans there are in a particular hole.
+
+int beansInPlay(Side s) const 
+Returns the number of beans on a particular side s. 
+pseudocode:
+if s is NORTH
+	repeatedly add each north hole to sum
+else
+	repeatedly add each south hole to sum
+return sum
+
+This is marked const because whatever calls it just wants the number of beans left on that side without changing anything.
+
+int totalBeans() const 
+Returns total number of beans.
+This is marked const because whatever calls it just wants the total number of beans without changing anything.
+
+bool sow(Side s, int hole, Side& endSide, int& endHole) 
+When a player moves, they call this function to move the beans around the board.
+pseudocode:
+if hole is invalid
+	return false
+if number of beans is <= 0
+	return false
+if s is SOUTH
+	while numBeans is not 0
+		repeatedly add one bean to each successive south hole
+			advance the iterator
+			if numBeans is 0 or reach end of south holes
+				break
+		if numbeans is 0,
+			break
+		add one bean to the pot
+		if last bean was spent on the pot,
+			break
+		then set currentSide to NORTH
+		repeatedly add a bean to north holes
+			decrement the iterator
+			if numBeans is 0 or reach end of north holes
+				break
+if s is NORTH
+	do the same thing as if s were SOUTH, but reverse the order.
+	add the the north holes first, and add the the south holes last.
+set endSide to the current side
+set endHole to the iterator
+return true
+
+bool moveToPot(Side s, int hole, Side potOwner) 
+This is used during captures and end-of-game sweeping in the Game class.
+It moves all the beans in the specified hole and side, into a specified pot.
+pseudocode:
+if hole is invalid
+	return fasle
+use setBeans() to change the potOwner's pot equal to its existing value plus the beans at hole and side s.
+use setBeans() to change number of beans at hole, side s to 0
+
+bool setBeans(Side s, int hole, int beans) 
+This sets the specified hole to contain 'beans' number of beans.
+This is used in moveToPot function, and in the Game class
+pseudocode:
+if hole is invalid
+	return fasle
+if s is NORTH or SOUTH
+	set north or south hole to beans respectively
+return true
+
+
+==================================================================================
+================================== Player Class ==================================
+
+This is the base class for the players that will play the game.
+Each player has a name, and a different way of choosing how they move.
+
+=============== Private variable ===============
+m_name was a string that stored the name of each player.
+
+=============== Proetected funtion ===============
+bool isValid(const Board& b, Side s, int hole) const
+This checked whether the hole a player selected was valid or not. 
+It is marked const to so not to accidently modify whatever called isValid.
+This is protected because all inherited classes should have access to it, but it is not necessary for any other class to call this function.
+It is not marked virtual since it does not change depending on class
+
+=============== Public functions ===============
+Player(std::string name)
+This is the constructor that creates a Player with the indicated name.
+
+std::string name() const
+Returns the name of the player. Marked const so not to modify the object it is called by.
+
+virtual bool isInteractive() const
+This is used to determine if a player is human or a computer, true or false respectively. 
+It is called in the game class to determine what the game mode.
+This is virtual since it will change depending on the type of Player.
+Since most kinds of players are computer players, it does not have to be pure virtual.
+In the Player class, this function returns false, and all computer players can reuse this code.
+
+virtual int chooseMove(const Board& b, Side s) const = 0
+This allows players to pick a hole as their turn.
+It is marked pure virtual since each type of player has its own way of picking a hole.
+Therefore, this function has no implementation in this class.
+
+virtual ~Player()
+This is the destructor 
+
+==================================================================================
+================================ HumanPlayer Class ===============================
+
+HumanPlayer is a derived class from Player, because it contains all the attributes of a player, plus more.
+It allows the user to input a hole to move.
+
+bool HumanPlayer::isInteractive() const
+This was marked virtual in Player, because it returns true for HumanPlayer, but false for Player
+It lets the Game know whether at least one player is human or not.
+
+int HumanPlayer::chooseMove(const Board& b, Side s) const
+This was a pure virtual function, so it is implemented specially for a human.
+Each player beside Player has its own implementation of chooseMove.
+pseudocode:
+ask human for a hole number
+store input in hole
+while hole is invalid,
+	tell why it is invalid, and ask for another hole
+return hole.
+
+
+==================================================================================
+================================= BadPlayer Class ================================
+
+BadPlayer is a derived class from Player, because it contains all the attributes of a player, but one modified function.
+It selects a hole randomly.
+
+
+int BadPlayer::chooseMove(const Board& b, Side s) const
+This was a pure virtual function, so it is implemented specially for a bad player.
+Each player beside Player has its own implementation of chooseMove.
+pseudocode:
+picks a randomHole int
+while randomHole is invalid
+	pick another hole between 1 and the number of holes in board
+return randomHole
+
+
+==================================================================================
+=================================== Game Class ===================================
+
+This class moderates the game. It is responsible for calling players to make their move, and alternating turns.
+It prompts board how to move the beans around.
+It determines the winner and outcomes of each move.
+It keeps track of when the game is over, when a capture has taken place, etc.
+
+
+=============== Private variables ===============
+
+Board m_board
+Is a Board, in which the game is played on.
+All movement of beans are done using this board.
+
+Player *m_south and Player *m_north
+Are the two players that participate.
+The game alternates between players, and uses them to make a move.
+
+bool m_over
+Lets functions know if the game is finished or not.
+
+bool m_hasWinner
+Determines whether a winner has been established. 
+Used to determine the outcome of the game.
+
+Side m_winner
+Equals the side that has the most beans in its POT once the game is over.
+Used to determine the outcome of the game.
+
+int turn
+Used to determine whose turn it is.
+-1 represents SOUTH's turn, and 1 represents NORTH's turn
+To switch turns, multiply turn by -1
+Initialized as -1 since SOUTH always starts
+
+int m_hole
+This is used when the Game calls the sow function in Board.
+m_hole stores the value of the hole that the player wants to be sown about the board
+
+int endHole
+This stores the value of where the last bean is dropped in the board after sow is called.
+This is useful when determining a second turn or when a capture.
+
+Side endSide
+This stores the Side of where the last bean is dropped in the board after sow is called.
+This is useful when determining a second turn or when a capture.
+
+
+=============== Private functions ===============
+
+void capture(int side)
+This function is called by move when a capture has taken place. 
+When a player drops its last bean on an empty hole on the player's side,
+both that bean, and all the beans across the board get placed into the player's pot.
+It is private since the main does not need access to this function, also because we cannot have any more public functions.
+pseudocode:
+if side is -1 (SOUTH)
+	if the hole where the last bean was placed is 1, and it is not the pot,
+	and it is on SOUTH's side, and the hole across the board is not empty,
+		moveToPot the beans from both of those holes into South's POT 
+if side is 1 (NORTH)
+	if the hole where the last bean was placed is 1, and it is not the pot,
+	and it is on NORTH's side, and the hole across the board is not empty,
+		moveToPot the beans from both of those holes into North's POT 
+
+
+void sweep()
+This function is called when the game is over, because it is a player's turn but has no more beans in play. 
+All beans on the opponent's side are swept into the opponent's pot.
+This is private because it is only called within the Game class.
+pseudocode:
+if North's beansInPlay is 0 and South's beansInPlay is not 0
+	repeatedly
+		moveToPot South's holes into South's pot
+if South's beansInPlay is 0 and North's beansInPlay is not 0
+	repeatedly
+		moveToPot North's holes into North's pot
+display updated board
+
+
+=============== Public Functions ===============
+
+Game(const Board& b, Player* south, Player* north)
+The constructor that initializes the board and players.
+It sets it to south's turn, and sets m_over to false.
+
+
+void display() const
+This function displays the current status of the board. 
+It is const because it should not modify the object that calls it.
+It is public so the main can see the board.
+pseudocode:
+repeatedly add spaces
+	print North player's name
+repeatedly
+	alternate printing spaces and the number of North beans at each hole
+print North's pot
+repeatedly add spaces
+print South's pot on the same line
+repeatedly
+	alternate printing spaces and the number of South beans at each hole
+repeatedly add spaces
+	print South player's name
+
+
+void status(bool& over, bool& hasWinner, Side& winner) const
+This function updates the game on its status. 
+Each of the parameters that are passed in by reference are modified to reflect the status of the game.
+These variables are then later used to once the game is finished to annouce a winner or tie game.
+pseudocode:
+if it is a player's turn and that player still has beans in play
+	return false
+set over to true
+if the two pots are not equal, 
+	set hasWinner to true
+	if North's pot is greater than South's
+		winner is NORTH
+	else
+		winner is SOUTH
+else
+	hasWinner is false
+
+
+bool move()
+This function keeps makes one move for whosever player's turn it is.
+It prompts the player to pick a hole, and calls sow using that hole.
+pseudocode:
+call status(),
+if game is over,
+	return false
+if it is South's turn
+	while endHole is the POT and game is not over
+		call m_south choosMove
+		call sow using that hole
+		call capture which checks if one has taken place
+		display updated board
+		switch turns
+if it is North's turn
+	while endHole is the POT and game is not over
+		call m_north choosMove
+		call sow using that hole
+		call capture which checks if one has taken place
+		display updated board
+		switch turns
+if game over
+	sweep
+return true
+
+
+
+void play()
+This function fascillitates the all the moving parts of the game. 
+If there are no human players, it allows the user to press enter to see each move
+Otherwise it repeatedly calls move, and announces the result of the game.
+pseudocode:
+display the initial board
+if South has not beans to start
+	sweep
+	check status
+if no human players
+	while game is not over
+		if move is true
+			print "Press Enter to continue."
+			wait until new line before continuing
+		else
+			break
+else
+	call move while true
+check status
+if no winner,
+	print "Tie game"
+otherwise
+	print the winner's name
+
+
+int beans(Side s, int hole) const
+Returns the number of beans located in hole on side s.
+
+
+
+==================================================================================
+=================================== SmartPlayer ==================================
+SmartPlayer is a type of computer player that uses two co-recursive functions to determine the best move.
+Its chooseMove function calls another chooseMove fucntion, which we'll call chooseMove2.
+chooseMove2 takes in the Board that was passed to chooseMove, and for each valid hole, creates a temporary board that stores the values of each hole after sowing it with the current valid hole.
+It then passes this updated temporary Board to oppChooseMove to make another hypothetical turn.
+It keeps passing back and forth until it reaches the maxDepth of number of turns. Then which ever turn it is, returns the differnce in value between the two pots.
+Each value gets assessed until it reaches the first chooseMove2, which finds the corresponding index to the best value, and returns that index.
+
+=============== Public Functions ===============
+SmartPlayer(string name)
+The constructor initializes maxDepth and turnCounter.
+
+virtual int chooseMove(const Board& b, Side s) const
+This function is marked virtual because it was inherited from Player, but requires a different implementation.
+It returns the hole that the SmartPlayer chooses.
+It stores the side and passes the board to a different chooseMove function
+
+=============== Private functions ===============
+bool gameOver(const Board& b, int& value) const
+This checks if the game is over.
+It modifies value by reference if the game is over.
+if North wins, value is changed to 9999; if South wins, values is changed to -9999.
+If it is a tie, it returns 0.
+
+void assignSides(Side s) const
+This takes in the side passed in from Game. 
+It sets it equal to s_side and sets the opposite side to n_side for readability.
+
+int chooseMove(const Board& b, int& value) const
+This function along with oppChooseMove are used to simulate future moves.
+They take hypothetical turns and together determine the best hole, which is then returned to chooseMove(const Board& b, Side s) which is called by Game.
+This function takes in a Board and value by reference. 
+It then creates a new board, sows each valid hole, and passes this modified board to oppChooseMove, which modifies value by reference. 
+Then, this function finds the lowest value, and sets bestHole to that index.
+pseudocode:
+if game is over
+	return -1
+if reached maxDepth
+	set value to the difference between North and South pots
+	return -1
+repeatedly go through each hole on SmartPlayer's side
+	if the hole is valid
+		create a temporary Board
+		sow the Board with current hole
+		check gameOver
+		call oppChoseMove using temporary Board
+		check if returned value is better than bestValue
+			update bestValue 
+			set bestHole to current index
+if bestHole is invalid
+	change it so it is valid
+return bestHole
+
+
+void oppChooseMove(const Board& b, int& value) const
+This is the complement to chooseMove(const Board& b, int& value) const.
+It takes in the temporary board created by chooseMove, and makes a move of its own.
+The function goes through each valid hole, sows it in another temporary board, and gives that board back to chooseMove.
+Then updates bestvalue, which is returned by reference back to the original chooseMove.
+This function is void unlike chooseMove, because it does everything chooseMove does, except return a hole. 
+It's only purpose is to evalute which holes have the best values.
+Each value oppChooseMove returns, corresponds to an index in chooseMove, which may then modify bestHole.
+pseudocode:
+if game is over
+	return -1
+if reached maxDepth
+	set value to the difference between North and South pots
+	return -1
+repeatedly go through each hole on SmartPlayer's side
+	if the hole is valid
+		create a temporary Board
+		sow the Board with current hole
+		check gameOver
+		call choseMove using temporary Board
+		check if returned value is better than bestValue
+			update bestValue 
+
+=============== Private variables ===============
+mutable int turnCounter
+This is counts the number of times a chooseMove has passed back a board. 
+It is used to prevent the SmartPlayer from choosing extremely deep recusrive loops.
+It is mutable because it has to be changed in const functions.
+
+mutable Side s_side
+mutable Side n_side
+These two Sides are used for readability. It assigns the Sides, so the game always takes place from the perspective of SOUTH.
+I initially wrote SmartPlayer so it could only play as SOUTH, so this function makes my initial code compatible if SmartPlayer is NORTH
+
+const int maxDepth
+This represents how deep SmartPlayer can look into the future. 
+It is const because it should never be changed in a Game.
+
+
+
+––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+                              Part 2: Bugs and Problems
+––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+
+I fixed most bugs in all classes except SmartPlayer through testing my program.
+The Board, Game, HumanPlayer, and BadPlayer all went smoothly, and I encountered most of my problems with the SmartPlayer.
+When passing the Boards back and forth, at some point the values skyrocketed.
+Once I fixed the problem, I ran into an issue regarding the display.
+When the SmartPlayer got another turn, it would infinitely display the board, which I thought the board would have prevented.
+I then misread the spec and had to fix the game over option. 
+I thought that it was only game over if you ran out of beans, AND it was your turn.
+
+
+––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+                                  Part 3: Test Cases
+––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+
+void doBoardTests()//Tests that the board properly holds correct values of beans
+{
+    Board b(3, 2);
+    assert(b.holes() == 3);
+    assert(b.totalBeans() == 12); 
+    assert(b.beans(SOUTH, POT) == 0);
+    assert(b.beansInPlay(SOUTH) == 6);
+    b.setBeans(SOUTH, 1, 1);
+    b.moveToPot(SOUTH, 2, SOUTH);
+    //cout<<"pass first set"<<endl;
+    assert(b.totalBeans() == 11  &&  b.beans(SOUTH, 1) == 1  &&
+                b.beans(SOUTH, 2) == 0  &&  b.beans(SOUTH, POT) == 2  &&
+		b.beansInPlay(SOUTH) == 3);
+	// test sow:
+    Side es;
+    int eh;
+    b.sow(SOUTH, 3, es, eh);
+    assert(es == NORTH); 
+	assert(eh == 3);
+
+   	assert(b.beans(SOUTH, 3) == 0);                
+	assert(b.beans(NORTH, 3) == 3);
+	assert(b.beans(SOUTH, POT) == 3 );
+	assert(b.beansInPlay(SOUTH) == 1);
+	assert(b.beansInPlay(NORTH) == 7);
+}
+void doPlayerTests()//Tests that each player can pick a valid move
+{
+    HumanPlayer hp("Marge");
+    assert(hp.name() == "Marge"  &&  hp.isInteractive());
+    BadPlayer bp("Homer");
+    assert(bp.name() == "Homer"  &&  !bp.isInteractive());
+    SmartPlayer sp("Lisa");
+    assert(sp.name() == "Lisa"  &&  !sp.isInteractive());
+    Board b(3, 2);
+    b.setBeans(SOUTH, 2, 0);
+    cout << "=========" << endl;
+    int n = hp.chooseMove(b, SOUTH);
+    cout << "=========" << endl;
+    assert(n == 1  ||  n == 3);
+    n = bp.chooseMove(b, SOUTH);
+    assert(n == 1  ||  n == 3);
+    //n = sp.chooseMove(b, SOUTH);
+    //assert(n == 1  ||  n == 3);
+}
+void doGameTests()//tests that the game can display, call and pass along moves 
+//from player to the board, and declare the result of the game
+{
+    BadPlayer bp1("Bart");
+    BadPlayer bp2("Homer");
+    Board b(3, 0);
+    b.setBeans(SOUTH, 1, 2);
+    b.setBeans(NORTH, 2, 1);
+    b.setBeans(NORTH, 3, 2);
+    Game g(b, &bp1, &bp2);
+    bool over;
+    bool hasWinner;
+    Side winner;
+    cout<<"SOUTH hole: 1, beans: "<<b.beans(SOUTH, 1)<<endl;
+    cout<<"NORTH hole: 2, beans: "<<b.beans(NORTH, 2)<<endl;
+    cout<<"NORTH hole: 3, beans: "<<b.beans(NORTH, 3)<<endl;
+    g.display();
+      //    Homer
+      //   0  1  2
+      // 0         0
+      //   2  0  0
+      //    Bart
+    g.status(over, hasWinner, winner);
+    assert(!over);
+    assert(g.beans(NORTH, POT) == 0);assert(g.beans(SOUTH, POT) == 0);
+    assert(g.beans(NORTH, 1) == 0);assert(g.beans(NORTH, 2) == 1);
+    assert(g.beans(NORTH, 3) == 2);assert(g.beans(SOUTH, 1) == 2);
+    assert(g.beans(SOUTH, 2) == 0);assert(g.beans(SOUTH, 3) == 0);
+
+    g.move();
+    //Bart chose 1
+      //   0  1  0
+      // 0         3
+      //   0  1  0
+    g.status(over, hasWinner, winner);
+    assert(!over);
+    assert(g.beans(NORTH, POT) == 0 );assert(g.beans(SOUTH, POT) == 3 );
+    assert(g.beans(NORTH, 1) == 0 );assert(g.beans(NORTH, 2) == 1 );
+    assert(g.beans(NORTH, 3) == 0);assert(g.beans(SOUTH, 1) == 0 );
+    assert(g.beans(SOUTH, 2) == 1);assert(g.beans(SOUTH, 3) == 0);
+
+    g.move();
+    //Homer Chose 2
+      //   1  0  0
+      // 0         3
+      //   0  1  0
+    g.status(over, hasWinner, winner);
+    assert(!over);
+    assert(g.beans(NORTH, POT) == 0 );assert(g.beans(SOUTH, POT) == 3);
+	assert(g.beans(NORTH, 1) == 1);assert(g.beans(NORTH, 2) == 0 );
+    assert(g.beans(NORTH, 3) == 0);assert(g.beans(SOUTH, 1) == 0 );
+    assert(g.beans(SOUTH, 2) == 1);assert(g.beans(SOUTH, 3) == 0);
+
+    g.move();
+    //Bart chose 2
+      //   1  0  0
+      // 0         3
+      //   0  0  1
+    g.status(over, hasWinner, winner);
+    assert(!over);
+    assert(g.beans(NORTH, POT) == 0); assert(g.beans(SOUTH, POT) == 3);
+	assert(g.beans(NORTH, 1) == 1); assert(g.beans(NORTH, 2) == 0);
+    assert(g.beans(NORTH, 3) == 0); assert(g.beans(SOUTH, 1) == 0 );
+    assert(g.beans(SOUTH, 2) == 0); assert(g.beans(SOUTH, 3) == 1);
+
+    g.move();
+    //Homer chose 1
+      //   0  0  0
+      // 1         4
+      //   0  0  0
+    g.status(over, hasWinner, winner);
+    assert(over && g.beans(NORTH, POT) == 1 && g.beans(SOUTH, POT) == 4 &&
+	g.beans(NORTH, 1) == 0 && g.beans(NORTH, 2) == 0 && g.beans(NORTH, 3) == 0 &&
+	g.beans(SOUTH, 1) == 0 && g.beans(SOUTH, 2) == 0 && g.beans(SOUTH, 3) == 0);
+    assert(hasWinner && winner == SOUTH);
+}
+void printBoard()//makes sure board is printed properly
+{
+	Board b(9,2);
+	BadPlayer north("NORTH");
+	BadPlayer south("SOUTH");
+	Game g(b, &south, &north);
+	g.display();
+}
+void playGame()//test game manually by playing with human and badplayer
+{
+	HumanPlayer hp("Marge");
+	BadPlayer bp("Homer");
+	Board b(3, 2);
+	Game g(b, &hp, &bp);
+	g.play();
+}
+void computerGame()//test the "press enter", as well as a working game with computers
+{
+	BadPlayer hp("Marge");
+	BadPlayer bp("Homer");
+	Board b(7, 3);
+	Game g(b, &hp, &bp);
+	g.play();
+}
+void humanGame()//tests that the game works with 2 humans
+{
+	HumanPlayer hp("Marge");
+	HumanPlayer bp("Homer");
+	Board b(3, 2);
+	Game g(b, &hp, &bp);
+	g.play();
+}
+void testSmartPlayer()//tests the smartplayer algorithm
+{
+    SmartPlayer sp1("South");
+    SmartPlayer sp2("North");
+    Board b(6,0);
+
+    b.setBeans(SOUTH, 0, 2);
+    b.setBeans(SOUTH, 2, 2);
+    b.setBeans(SOUTH, 3, 2);
+    b.setBeans(SOUTH, 4, 2);
+    b.setBeans(SOUTH, 5, 2);
+    b.setBeans(NORTH, 1, 2);
+    b.setBeans(NORTH, 3, 2);
+    b.setBeans(NORTH, 4, 2);
+    Game g(b, &sp1, &sp2);
+    g.display();
+    //   2  0  2  2  0  0
+    // 0                  2
+    //   0  2  2  2  2  0 
+    
+    sp1.chooseMove(b, SOUTH);//could make a move to the pot or avoid capture
+    g.display();
+    sp2.choosMove(b, NORTH);//should capture for max
+    g.display();
+
+    Board b2(3,0);
+    Game g2(b2, &sp1, &sp2);
+    b.setBeans(SOUTH, 0, 1);
+    b.setBeans(SOUTH, 1, 1);
+    b.setBeans(SOUTH, 3, 3);
+
+    b.setBeans(NORTH, 1, 2);
+    b.setBeans(NORTH, 2, 2);
+    //   1  2  0
+    // 0         1
+    //   1  0  3
+    g2.display()
+    sp1.chooseMove(b2, SOUTH);//should capture for best move
+    g2.display();
+    sp2.choosMove(b2, NORTH);// no choice
+    g2.display();
+}
+void SmartGame()//manually test human and smartplayer. manually assess smartplayer's move
+{
+	HumanPlayer hp("Marge");
+	SmartPlayer bp("Homer");
+	Board b(5, 2);
+	Game g(b, &hp, &bp);
+	g.play();
+}
+void SmartGame()//manually test human and smartplayer. make sure smart player can play as SOUTH
+{
+	HumanPlayer hp("Marge");
+	SmartPlayer bp("Homer");
+	Board b(5, 2);
+	Game g(b, &bp, &hp);
+	g.play();
+}
+void SmartGame()//make sure smartplayer can play against another smartplayer
+{
+	SmartPlayer hp("Marge");
+	SmartPlayer bp("Homer");
+	Board b(5, 2);
+	Game g(b, &hp, &bp);
+	g.play();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

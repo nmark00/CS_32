@@ -1,0 +1,116 @@
+hw.txt
+
+1a.
+                          50
+
+               20                   60
+
+         10           40                   70
+          
+           15       30                65        80
+
+                  25   39                     71
+
+1b.
+in-order: 10  15  20  25  30  39  40  50  60  65  70  71  80
+
+pre-order: 50  20  10  15  40  30  25  39  60  70  65  80  71
+
+post-order:  15  10  25  39  30  40  20  65  71  80  70  60  50
+
+1c.
+                          50
+
+               15                   60
+
+         10          40                   70
+          
+                 25                  65        80
+
+                    39                       71
+
+2a.
+struct Node
+{
+	int data;
+	Node* parent;
+	Node* left;
+	Node* right;	
+};
+
+2b.
+void insert(int insertMe)
+if tree is empty,
+	create new Node with insertMe
+	point parent to nullptr
+	point children to nullptr
+	point root to the new Node
+start at root 
+repeatedly
+	if current Node contains insertMe
+		return
+	if insertMe is less than current Node
+		if left child is nullptr
+			create new Node with insertMe
+			point its parent to current Node
+			point its children to nullptr
+			point current Node's left child to the new Node.
+			return
+		go to left child pointer
+			continue
+	else
+		if right child is nullptr
+			create new Node with insertMe
+			point its parent to current Node
+			point its children to nullptr
+			point current Node's right child to the new Node
+			return
+		go to right child pointer
+			continue
+
+3a.
+             7
+
+        3          6
+
+     0     2     4
+
+3b.
+     7
+     3
+     6
+     0
+     2
+     4
+
+3c.
+     6
+     3
+     4
+     0
+     2
+
+
+4a.
+O(C + S)
+
+4b.
+O(logC + S)
+
+4c.
+O( logC + logS) )
+
+4d.
+O(logS)
+
+4e.
+O(1)
+
+4f.
+O(logC + S)
+
+4g.
+O(SlogS)
+
+4h.
+O( Clog(S) )

@@ -1,0 +1,152 @@
+report.txt
+
+The doubly-linked list is comprised of some number of Nodes- a type that contains a value, and 2 pointers: "next" and "prev". A head pointer points to the first node and a tail pointer points to the last node, which can be the same if there is only 1 in the sequence. The first node's "prev" pointer points to nullptr, and its "next" pointer points to the next node in the sequence. This continues on until the tail node's "next" pointer points to nullptr. Items can be called by traversing the sequence by setting a pointer to the "next" pointer.
+
+
+Pseudocode
+
+insert(int pos, const ItemType& value)
+check if pos is 0
+	create new node and link it with the head node
+	set head to the new node
+check if pos is in the middle
+	point to node at position pos 
+	create a new node and link in with the node at position pos and pos+1
+check if pos is at the end
+	create new node and link it with the tail node
+	set tail to the new node
+otherwise return -1
+
+////////////////////////////////////////////////////////////////////////////////
+insert(const ItemType& value)
+repeatedly:
+	check if parameter is greater than current node
+		if so, insert parameter at that position
+	otherwise advance to next node
+
+////////////////////////////////////////////////////////////////////////////////
+erase:
+
+check if parameter is 0 and size is 1
+	set head to nullptr
+check if pos just equals 0
+	set head to point to next Node
+check if pos is in the middle
+	create temporary killMe node to point to node at pos
+	link adjacent nodes of killMe to point to each other
+	delete killMe
+check if pos is at the end
+	set tail to point to second to last node
+return false if nothing erased
+
+////////////////////////////////////////////////////////////////////////////////
+remove:
+
+repeatedly 
+	check if Node value equals parameter value
+		call erase function at current position
+		increase count variable
+	advance to next Node
+return count variable
+
+////////////////////////////////////////////////////////////////////////////////
+get:
+
+if bounds are valid
+	keep pointing to next Node until reached position pos
+	set the "value" to the Node's value and return true
+otherwise return false
+
+////////////////////////////////////////////////////////////////////////////////
+set:
+
+if bounds are valid
+	keep pointing to next Node until reached position pos
+	set the node's value to "value" and return true
+otherwise return false
+
+////////////////////////////////////////////////////////////////////////////////
+find:
+
+set pointer to head
+repeatedly:
+	check if passed in value equals item in current node
+	if so return the node number
+	if not, increment node number and point to next node
+return -1 if if nothing returned yet
+
+////////////////////////////////////////////////////////////////////////////////
+swap:
+
+make sequence head and tail point to other sequence
+switch sequence sizes
+
+////////////////////////////////////////////////////////////////////////////////
+subsequence:
+
+if size of seq1 or seq2 equals 0 or 1
+	return -1
+repeatedly:
+	check if jth and (j+1)th item of seq1 equals ith and (i+1)th item of seq2 respectively
+	if so, return j
+if nothing returned yet, return -1
+
+////////////////////////////////////////////////////////////////////////////////
+interleave:
+
+create Sequence r1
+if seq1 or seq2 equals 0
+	set r1 to the other seq (doesn't matter if both seq are 0)
+then repeatedly insert elements of seq2, then seq at the same location
+	the seq1 element will thus be inserted in fron of seq2
+	insert until their end
+set result to r1
+
+
+
+
+Test Cases:
+#include "Sequence.h"
+#include <iostream>
+#include <cassert>
+using namespace std;
+
+void test()
+{
+    Sequence s;
+    // For an empty sequence:
+    assert(s.size() == 0);             // test size
+    assert(s.empty());                 // test empty
+    assert(s.remove("paratha") == 0);  // nothing to remove
+}
+void test2()
+{
+    Sequence s;
+    s.insert(0, "b");
+    s.insert("a");
+    s.insert(0, "c");
+   // s.insert(1, "d");
+    Sequence s2(s);
+    s2.erase(1);
+    string value;
+    for (int i=0; i< s.size(); i++) {
+        s.get(i, value);
+        cout<< value<<endl;
+    }
+    cout<< endl;
+    for (int i=0; i< s2.size(); i++) {
+        s2.get(i, value);
+        cout<< value<<endl;
+    }
+    cout<< endl;
+    
+    //interleave(const s2, const s, Sequence r)
+    
+}
+
+int main()
+{
+    test();
+    test2();
+    cout << "Passed all tests" << endl;
+}

@@ -1,0 +1,32 @@
+hw.txt
+
+2:
+(3, 5)
+(2, 5)
+(1, 5)
+(0, 5)
+(1, 6)
+(1, 7)
+(1, 8)
+(2, 8)
+(3, 8)
+(3, 5)
+(3, 6)
+(4, 5)
+
+4:
+(3, 5)
+(4, 5)
+(3, 6)
+(2, 5)
+(3, 5)
+(5, 5)
+(1, 5)
+(6, 5)
+(4, 5)
+(1, 6)
+(0, 5)
+(7, 5)
+
+The two algorithms differ because the stack will add the next possible path to the stack. It then pops off squares as it hits a deadend and tries another path until it either reaches the end or another deadend.
+The queue adds all possible squares around the current cooridinate. It slowly keeps adding to the queue until it reaches the end.

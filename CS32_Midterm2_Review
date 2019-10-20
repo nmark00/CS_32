@@ -1,0 +1,67 @@
+CS32_Midterm2_Review
+1)
+bool validGrouping(string p)
+{
+	stack <char> parentheses;
+	for(int i =0; i < p.size(); i++)
+	{
+		if(p[i] == "(")
+				parentheses.push(p[i]);
+		if (parentheses.empty())
+			return false;
+		if (p[i] == ')')
+				parentheses.pop();
+	}
+	if (parentheses.empty)
+		return true;
+	return false;
+}
+2)
+string reverseString(string str)
+{
+	stack<char> st;
+	for (int i =0; i< str.length(); i++)
+	{
+		st.push(str[i]);
+	}
+	string returnThis;
+	for (int i =0; i< st.size(); i++)
+	{
+		returnThis = st.top();
+		st.pop()
+	}
+	return returnThis;
+}
+2)
+class Stack
+{
+public:
+	bool empty() const;
+	int size() const;
+	int top();
+	void push(int value);
+	void pop();
+private:
+	queue <int> q;
+}
+bool empty() const
+{
+	return (q.empty())
+
+}
+
+void pop()
+{
+	for (int i =0; i<q.size() -1; i++)
+	{
+		q.push(front);
+		q.pop();
+	}
+	q.pop();
+}
+
+
+int pascals(int row, int col)
+{
+	
+}

@@ -1,0 +1,46 @@
+Week 2 Discussion
+
+Dynamic allocation of an array:
+<type> * <name> = new <type>[<#elements(some variable)>];
+ex:
+char *article= new char[length];
+int *array = new int[size];
+
+new returns a pointer starting at the address of the allocated memory space
+
+2D array:
+	statically allocated ex: 
+	int arr[5][10];
+Dynamically allocated array:
+int **arr= new int*[row];
+for(int i=0; i<rows; i++)
+{
+	arr[i]= new int(col);
+}
+
+ex:
+int p = *(new int);
+delete &p;
+
+study destructor slide (22)
+class vending_machine{
+	public:
+	vending_machine(int num){
+	vms = new vending_machine*[num];
+	for(int i=0; i<num; ++i)
+		vms[i] = new vending_machine;
+	this-> num = num;
+	}
+	private:
+	vending_machine **vms;
+}
+
+shallow copy vs deep copy:
+shallow copy makes an array point to the same object as another array
+deep copy makes a copy of the objects that the array will point to
+shallow copy:
+	char c[10] = "...."
+	char b[10];
+	b=c;
+deep copy uses a copy constructor
+school s2= s1;
